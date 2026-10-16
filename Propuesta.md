@@ -3,17 +3,17 @@
  <img src="https://www.fi.uba.ar/images/logo-fiuba.png" alt="image2" width="50%">
 
 
-# **Sistema Automático de Gestión de Cultivos (SAGC)**
+# **Control de uso de un sistema externo de forma externa**
 
  
 
-**Autores: Camueira Elias; Cascia Serena; Donadello Nicolas**
+**Autores: DELGADO Alex; PAREDES Fabian; LAIME Kevin**
 
-**Padrón: 110772; 107946; 112007**
+**Padrón: 112250; xxx-xxx; xxx-xxx**
 
-**Fecha: 2do cuatrimestre 2025**
+**Fecha: 2do cuatrimestre 2026**
 
-**Fecha de entrega estimada: 18/02/2026**
+**Fecha de entrega estimada: 18/12/2026**
 
  
 
