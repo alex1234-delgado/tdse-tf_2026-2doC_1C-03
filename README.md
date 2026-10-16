@@ -3,7 +3,7 @@
 
 ### Integrantes del Grupo
 | Padrón | Apellidos, Nombres |
-| :----- | :--------------------- |
+| :----- | :---------------------- |
 | 112250 | DELGADO, Alex |
 | 113724 | PAREDES, Fabian |
 | 111621 | LAIME, Kevin |
