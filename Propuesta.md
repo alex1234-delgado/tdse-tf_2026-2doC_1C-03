@@ -21,187 +21,131 @@
 
  
 
-### **1\. Selección del proyecto a implementar**
+## 1\. Descripción General del Proyecto
 
-#### **1.1 Objetivo del proyecto y resultados esperados**
+El presente proyecto propone el diseño e implementación de un **Producto Mínimo Viable (MVP)** consistente en una consola recreativa embebida que ejecuta el clásico juego del gusanito (*Snake*). El sistema está construido alrededor de un microcontrolador de 32 bits de la familia **STM32 (ARM Cortex-M)** sobre una placa **NUCLEO-F103RB**.
 
-El objetivo de este proyecto es desarrollar un sistema automatizado de cultivo que permita medir, registrar y controlar variables ambientales críticas (temperatura, humedad, riego, fertilización) e implementar iluminación espectral controlada (incluyendo rojo, azul y UV-A) para favorecer el desarrollo óptimo de los cultivos en sus distintas etapas. Además, a través de una aplicación móvil, el usuario puede cargar datos sobre el progreso del cultivo y ajustar parámetros. El sistema utiliza esta información para refinar su respuesta y optimizar el control de acuerdo con las necesidades específicas del cultivo.
+El prototipo combina una **Matriz de LEDs 8x8 (controlada vía bus SPI)** para la renderización gráfica del área de juego y una **Pantalla LCD 16x2 (vía comunicación I2C o bus de 4 bits)** para la interfaz de usuario, visualización de puntuaciones en tiempo real, velocidad actual y menús de navegación.
 
-#### **1.2 Proyectos similares**
+El *firmware* se desarrollará en **C Bare Metal** (sin sistema operativo de tiempo real), siguiendo una arquitectura modular basada en el patrón **Escrutar – Procesar – Actuar**. La ejecución estará coordinada por un **Super-Loop** gobernado por un **Ejecutor Cíclico** sincronizado por la interrupción periódica del `SysTick` a **1 ms**, garantizando un comportamiento determinístico y no bloqueante en todas sus tareas.
 
-En base al objetivo se proponen posibles proyectos que requieren el uso de hardware específico y se ponderan los aspectos a tener en cuenta para seleccionar el más adecuado.
+El sistema contempla tres modos de operación principales:
 
-1. **Base:** Control con monitoreo de humedad del suelo y temperatura y humedad del aire con irrigación de agua y fertilizantes e iluminación personalizada.
-2. **Base + caudalimetro:** Control con monitoreo de humedad del suelo y temperatura y humedad del aire con irrigación (finamente monitoreada a través de un caudalímetro) de agua y fertilizantes e iluminación personalizada.
-3. **Base + medidor de pH:** Control con monitoreo de humedad del suelo, temperatura y humedad del aire y calidad de los suelos (Índice de pH) con irrigación de agua y fertilizantes e iluminación personalizada.
+1. **Modo `NORMAL`:** Ejecución dinámica del juego, captura de movimiento mediante Joystick analógico (ADC), gestión de colisiones, crecimiento del gusanito, actualización de puntaje y reproducción de efectos de sonido vía PWM en un buzzer.
+2. **Modo `SET_UP`:** Menú interactivo desplegado en la pantalla LCD que permite ajustar parámetros como el nivel de dificultad (velocidad del juego), límites de sonido y borrado de récords. Los parámetros configurados se almacenan de forma no volátil en una **memoria EEPROM externa (I2C)** o Flash interna.
+3. **Modo `FALLA` / `GAME_OVER`:** Gestión de eventos de colisión (contra bordes o cuerpo), activación de alarma sonora, almacenamiento no volátil de la puntuación máxima (*High Score*) y notificación vía **Bluetooth (módulo HM-10)** a una aplicación móvil.
 
-Para comparar estas alternativas, se tienen en cuenta seis aspectos característicos, los cuales se ponderan del 1 al 10:
-1.  **Disponibilidad del hardware (9):** Se evalúa si el proyecto puede implementarse utilizando hardware que se consiga fácilmente en el mercado regional, sin necesidad de importación o tiempos de envío extensos.
-2.  **Impacto en el proyecto (8):** Se pondera cuánto aporta a la funcionalidad y control del crecimiento del cultivo.
-3.  **Costo (8):** Se evalúa el costo total del hardware requerido para cada opción.
-4.  **Dificultad técnica / Viabilidad (10):** Se contempla el tiempo requerido y la complejidad de implementación, teniendo en cuenta los conocimientos disponibles.
-5.  **Interés personal del equipo (7):** Se pondera la motivación e interés del equipo en implementar cada alternativa.
+---
 
-La siguiente tabla (Tabla 1.2.1) muestra los valores ponderados asignados a cada proyecto considerado
+## 2\. Especificación de Hardware
 
-<table>
-    <thead>
-        <tr>
-            <th rowspan="2">Criterio</th>
-            <th colspan="2">Proyecto Base</th>
-            <th colspan="2">Base + Caudalímetro</th>
-            <th colspan="2">Base + Medidor de pH</th>
-        </tr>
-        <tr>
-            <th>Puntaje</th>
-            <th>Puntaje Ponderado</th>
-            <th>Puntaje</th>
-            <th>Puntaje Ponderado</th>
-            <th>Puntaje</th>
-            <th>Puntaje Ponderado</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class="header-row">
-            <td align="center">Disponibilidad de Hardware <br>(peso: 9)</td>
-            <td>10</td>
-            <td>90</td>
-            <td>10</td>
-            <td>90</td>
-            <td>4</td>
-            <td>36</td>
-        </tr>
-        <tr>
-            <td align="center">Impacto en el proyecto <br>(peso: 8)</td>
-            <td>8</td>
-            <td>64</td>
-            <td>5</td>
-            <td>40</td>
-            <td>9</td>
-            <td>72</td>
-        </tr>
-        <tr class="header-row">
-            <td align="center">Costo (peso: 8)</td>
-            <td>8</td>
-            <td>64</td>
-            <td>7</td>
-            <td>56</td>
-            <td>3</td>
-            <td>24</td>
-        </tr>
-        <tr>
-            <td align="center">Dificultad técnica / Viabilidad <br>(peso: 10)</td>
-            <td>9</td>
-            <td>90</td>
-            <td>7</td>
-            <td>70</td>
-            <td>3</td>
-            <td>30</td>
-        </tr>
-        <tr class="header-row">
-            <td align="center">Interés personal <br>(peso: 7)</td>
-            <td>8</td>
-            <td>56</td>
-            <td>8</td>
-            <td>56</td>
-            <td>9</td>
-            <td>63</td>
-        </tr>
-        <tr class="highlight-green">
-            <td><strong>Puntaje Total</strong></td>
-            <td>-</td>
-            <td><strong>364</strong></td>
-            <td>-</td>
-            <td>312</td>
-            <td>-</td>
-            <td class="highlight-red">225</td>
-        </tr>
-    </tbody>
-</table>
-<p align="center"><em>Tabla 1: Comparación de alternativas de proyecto</em></p>
+El hardware del sistema cumple estrictamente con los lineamientos de la cátedra, combinando los periféricos obligatorios del curso con componentes dedicados para la aplicación del juego.
 
-#### **1.3 Selección de proyecto**
+### 2.1\. Placa Base y Ensamblado
 
-Vistas las consideraciones tomadas en cuenta para discriminar cuál sería el proyecto óptimo para desarrollar, se decidió seguir adelante con la opción Base. Esta, a contraposición de las otras, cumple con lo mínimo que se pretende manteniendo a su vez un costo racional respecto a lo que ofrece. Si bien tanto el módulo de control de caudal como el de control de pH ofrecen nueva información más exacta, esta no tiene un impacto que justifique un poco el nivel de inversión que presupone.
+* **Placa Base Soldada:** La totalidad del circuito se montará sobre un PCB diseñado a medida o sobre una placa experimental con componentes, borneras, conectores y cables rígidamente soldados (**queda totalmente excluido el uso de protoboards o cables Dupont sueltos**).
 
-De esta forma, el proyecto a desarrollar consiste en un sistema de control de crecimiento de varios tipos de plantas centrándose en el monitoreo de humedad del suelo y temperatura y humedad del aire y actuando mediante doble irrigación (nutrientes y agua), control de distintos espectros de luz y flujo de aire con un ventilador. Todo esto va a funcionar a la par de una configuración amplia y activa llevada a cabo de forma manual (usuario) como automática (mediante aprendizaje del sistema).
+### 2.2\. Componentes de Hardware Obligatorios
 
-Los principales desafíos que se van a afrontar son la integración efectiva de los distintos sistemas, la sincronización a través de la APP y lograr una automatización efectiva a partir de la información “aprendida” por el sistema.
+* **Placa de Procesamiento:** STMicroelectronics NUCLEO-F103RB (MCU STM32F103RB, ARM Cortex-M3 a 72 MHz).
+* **Entradas Analógicas:** Joystick analógico de 2 ejes (ejes X e Y leídos mediante canales del **ADC** de 12 bits) para el control direccional del gusanito.
+* **Módulo de Comunicación Inalámbrica:** Transceptor Bluetooth **HM-10 (UART)** para el envío de métricas, estadísticas y comandos desde/hacia una App móvil.
+* **Almacenamiento No Volátil:** Memoria **EEPROM externa (vía I2C)** o Flash interna del microcontrolador para guardar configuraciones del modo `SET_UP` y el récord histórico (*High Score*).
+* **Salida de Audio:** **Buzzer piezoeléctrico** modulado por **PWM (Timer)** para la generación de tonos y efectos sonoros (comer fruta, cambio de dirección, game over).
+* **Entradas Digitales Auxiliares:** *Dip switches* para la selección manual del modo de operación (`NORMAL` / `SET_UP`) y botones para pausa/reinicio.
+* **Salidas Indicadoras:** LEDs de estado (Verde: Ejecución `NORMAL`, Amarillo: Modo `SET_UP`, Rojo: `GAME_OVER` / `FALLA`).
 
+### 2.3\. Componentes Adicionales Específicos del Proyecto
 
-###### **1.3.1 Diagrama en bloques**
+* **Matriz de LEDs 8x8 con Controlador MAX7219:** Pantalla principal de renderizado del mapa de juego, gestionada mediante el bus de comunicación serie de alta velocidad **SPI**.
+* **Pantalla LCD 16x2:** Interfaz de texto para el despliegue del menú `SET_UP`, puntaje actual, nivel de velocidad y mensajes de estado, conectada vía módulo adaptador **I2C (PCF8574)** o interfaz paralela de 4 bits.
 
-En la Figura 1 se muestra el diagrama en bloques del sistema con los principales módulos del proyecto
+---
 
-<p align="center">
-  <img src="https://github.com/ecamueira/tdse-tf_2-3/blob/bf6dab3dfb3a5b1fc84b6bade665e4331510a259/diagrama_en_bloques.png" alt="image1">
-</p>
+## 3\. Arquitectura de Firmware y Software
 
-<p align="center"><em>Figura 1: Diagrama en bloques del sistema</em></p>
+El desarrollo del código seguirá el estándar de codificación ***Embedded C Coding Standard* de Michael Barr** y los principios de modularidad del taller.
 
+### 3.1\. Patrón Escrutar – Procesar – Actuar
 
-### **2\. Elicitación de requisitos y casos de uso**
+El programa se estructurará en tres capas independientes:
 
-En Argentina existen diversos productos orientados al monitoreo y control ambiental para cultivos indoor e invernaderos. Sin embargo, la mayoría de las soluciones disponibles se limita a funciones específicas (como riego, humedad o temporizadores) y no integran en un mismo sistema la totalidad de sensores, actuadores y conectividad inalámbrica que propone este proyecto.
+* **Escrutar (`task_sensor`):** Lee periódicamente los canales ADC del joystick, el estado de los botones, los dip switches y los datos recibidos vía Bluetooth HM-10\. Aplica algoritmos de filtrado y *debouncing* (eliminación de rebotes) antes de generar eventos.
+* **Procesar (`task_system`):** Contiene la lógica central del juego modelada mediante **Máquinas de Estado Finito (Statecharts)**. Procesa las transiciones de movimiento, lógica de crecimiento, generación aleatoria de comida, detección de colisiones y gestión de menús.
+* **Actuar (`task_actuator`):** Recibe comandos y actualiza el buffer de la matriz de LEDs (SPI), el contenido del LCD (I2C), las frecuencias del PWM en el buzzer y el estado de los LEDs indicadoras.
 
-Como primer competidor puede mencionarse a **Wentux (Argentina)**, empresa dedicada al desarrollo de automatización para cultivos indoor. Ofrece controladores de clima, módulos para extracción, temporizadores y dispositivos de riego. Si bien sus productos cubren funciones clave como temperatura y humedad, no incluyen controladores de fertilizacion, monitoreo de nivel de agua ni conectividad vía Wi-Fi o BLE con una app. Su enfoque está más orientado al control puntual de variables, no a un sistema integral. Ademas que sus productos y servicios son muy costosos, comparandolo con el que se propone implementar.
+### 3.2\. Ejecutor Cíclico y Comportamiento No Bloqueante
 
-Un segundo competidor es **Autoplants Argentina**, que fabrica sistemas automáticos de riego y control básico de humedad para cultivos en interior y exterior. Estos dispositivos permiten controlar el riego y medir humedad ambiente, pero carecen de un sistema unificado que combine ventilación, luz artificial, sensado de varias variables y configuración remota mediante WIFI o BLE. Tampoco integran sensores específicos como nivel de agua.
+* **Sincronización:** Un bucle principal (*Super-Loop*) es sincronizado cada **1 ms** por la interrupción del temporizador del sistema `SysTick`.
+* **Cero Bloqueo:** Queda estrictamente prohibido el uso de funciones de retardo pasivo (`HAL_Delay` o bucles `while` de espera). Toda temporización se gestiona mediante contadores de *ticks* dentro de los estados.
+* **Gestión de Energía:** En períodos de inactividad o pausa prolongada, el sistema invoca rutinas de bajo consumo (`Sleep` / `Stop Mode`) del STM32.
 
-En conclusión, si bien Argentina cuenta con empresas que producen controladores ambientales y sistemas automáticos para cultivos indoor o invernaderos, ninguna ofrece una solución completa que combine: sensores de humedad de suelo, temperatura, humedad ambiente, nivel de agua, control de ventilación, luz artificial y conectividad Wi-Fi/BLE integrada en un único dispositivo. Esto posiciona al proyecto como una propuesta innovadora, accesible y adaptada a un segmento del mercado que actualmente no está cubierto con una solución integral. Ademas, al implementarlo con componentes y modulos que pueden conseguirse en el mercado local, el proyecto disminuye significativamente tiempos y costos de desarrollo. Ademas, esto nos permite reemplazos rápidos, disponibilidad inmediata de repuestos y una mayor viabilidad para producir o escalar el sistema sin depender de importaciones o proveedores externos.
+---
 
-| Grupo | ID | Descripción |
-| :---- | :---- | :---- |
-| Sensores ambientales | 1.1 | El sistema contará con un sensor de temperatura y humedad ambiente (DHT22) para supervisar condiciones del cultivo. |
-|  | 1.2 | El sistema contará con un sensor de humedad de suelo (preferentemente capacitivo) por maceta/zona para gobernar el riego automático. |
-|  | 1.3 | El sistema realizará lecturas periódicas de los sensores a una frecuencia configurable y enviará valores a la app. |
-| Actuadores — Riego | 2.1 | El sistema controlará una bomba para activar riego en función del umbral de humedad de suelo configurado. |
-|  | 2.2 | El sistema controlará una bomba para activar la fertilización líquida en función del tiempo o de la cantidad de riegos de agua efectuados, lo que ocurra primero.|
-|  | 2.3 | El riego será interrumpido automáticamente si se detecta falta de agua (sensor de nivel de tanque) o marcha en seco (protección). |
-| Actuadores — Iluminación | 2.4 | El sistema contará con una tira LED RGB (analógica o direccionable) para iluminación artificial del cultivo, controlada por PWM. |
-|  | 2.5 | La intensidad y el espectro (combinación R/G/B) serán configurables desde la aplicación para definir fotoperíodos y etapas (crecimiento / fructificación). |
-| Actuadores — Ventilación | 2.6 | El sistema contará con un ventilador tipo PC (cooler) controlable por PWM y por MOSFET de ser necesario, para renovación de aire y control térmico local. |
-|  | 2.7 | El ventilador podrá operar en modos definidos por firmware (p. ej. ON/OFF, control proporcional por temperatura/humedad), seleccionables desde la app. |
-|  | 2.8 | Si se desea, el sistema leerá la señal tach del ventilador para medir RPM y validar que el ventilador está funcionando. |
-| Almacenamiento | 3.1 | La configuración del sistema (umbrales, fotoperíodos, parámetros) se persistirá en la **Flash interna** del microcontrolador. |
-|  | 3.2 | El sistema recuperará la configuración guardada al iniciar y validará la integridad de la misma. |
-| Interfaz/App | 4.1 | Toda la interacción de usuario, notificaciones y alarmas se realizará mediante la aplicación móvil conectada por BLE. |
-|  | 4.2 | La app permitirá configurar umbrales, iniciar riegos manuales, programar fotoperíodos y controlar el ventilador. |
-|  | 4.3 | El sistema enviará a la app lecturas periódicas y eventos críticos (ej. falta de agua, sensor desconectado, fallo de ventilador). |
-| Operación segura | 5.1 | Si ocurre un evento inesperado que suponga un riesgo al sistema, el mismo deberá reiniciar con los actuadores en estado pasivo |
+## 4\. Tabla de Requisitos del Sistema
 
-<p align="center"><em>Tabla 2: Requisitos del proyecto</em></p>
+### 4.1\. Requisitos Funcionales (RF)
 
-En las tablas 3.1 a 3.3 se presentan 3 casos de uso para el sistema.
+| ID       | Tipo      | Descripción                                                                                                                                |
+| -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **RF01** | Funcional | El sistema renderizará la posición del gusanito y la fruta en la Matriz de LEDs 8x8 mediante el bus **SPI**.                               |
+| **RF02** | Funcional | El usuario controlará la dirección del gusanito mediante las lecturas analógicas del Joystick leídas a través del **ADC**.                 |
+| **RF03** | Funcional | La pantalla **LCD 16x2** mostrará continuamente la puntuación actual, el nivel de dificultad y las opciones del menú.                      |
+| **RF04** | Funcional | En el modo `SET_UP`, el usuario podrá ajustar la velocidad inicial y guardar el récord máximo (*High Score*) en la **EEPROM (I2C)**.       |
+| **RF05** | Funcional | El sistema transmitirá las estadísticas y recibirá comandos de pausa o reinicio vía el módulo **Bluetooth HM-10 (UART)**.                  |
+| **RF06** | Funcional | Se generarán tonos audibles mediante un **Buzzer (PWM)** al comer frutas, cambiar de nivel o al colisionar.                                |
+| **RF07** | Funcional | La conmutación de los *dip switches* alternará de forma inmediata entre el modo de juego (`NORMAL`) y el menú de configuración (`SET_UP`). |
+| **RF08** | Funcional | Al ocurrir una colisión, el sistema pasará al modo `GAME_OVER`, encenderá el LED rojo y actualizará la EEPROM si se superó el récord.      |
 
-| Elemento | Definición |
-| :---- | :---- |                                                                                                                                                                                                                                  
-| **Disparador**          | El sistema detecta que la humedad del suelo cae por debajo del umbral configurado. |                                                                                                                                                                                                                                                                                      
-| **Precondiciones**      | El sistema está encendido. La bomba está conectada y con agua disponible. La humedad objetivo está configurada en la app y almacenada en Flash. El sensor de humedad de suelo está funcionando.|                                                                                                                                                                         
-| **Flujo principal**     | El sistema realiza una lectura periódica del sensor de humedad de suelo. Si la lectura está por debajo del umbral, enciende la bomba mediante MOSFET e inicia el riego automático. El sistema notifica a la app que se realizó un riego automático. |
-| **Flujos alternativos** | a. El tanque no tiene agua: el sensor de nivel indica vacío y el riego no se ejecuta; se envía alerta a la app. |                                                                                                                                                                                                                                                            
+### 4.2\. Requisitos No Funcionales (RNF)
 
-<p align="center"><em>Tabla 3.1: Caso de uso 1: Riego automático</em></p>
+| ID        | Tipo         | Descripción                                                                                                                               |
+| --------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **RNF01** | No Funcional | El firmware debe ser desarrollado en **C Bare Metal** sin uso de RTOS, aplicando la arquitectura **Escrutar–Procesar–Actuar**.            |
+| **RNF02** | No Funcional | El bucle principal estará sincronizado por un **Ejecutor Cíclico a 1 ms**, con un tiempo de ejecución por ciclo menor a 1 ms.             |
+| **RNF03** | No Funcional | La totalidad de los componentes deberá estar montada y soldada sobre una **placa base rígida**, sin uso de protoboards ni cables sueltos. |
+| **RNF04** | No Funcional | La lógica de control debe estar implementada con **Máquinas de Estado Finito (Statecharts)** no bloqueantes.                              |
+| **RNF05** | No Funcional | El código debe respetar las normas de estilo de codificación de **Michael Barr**.                                                         |
+| **RNF06** | No Funcional | El microcontrolador debe implementar modos de **bajo consumo** durante los estados de reposo o pausa.                                     |
 
+---
 
-| Elemento | Definición |
-| :---- | :---- |
-| **Disparador**          | La app envía una configuración de color, intensidad o fotoperíodo para la tira LED.|                                                                                                                                                                                                                                           
-| **Precondiciones**      | El sistema está encendido. La tira LED está conectada mediante PWM. La app está enlazada por BLE. Los parámetros previos están almacenados en Flash. |                                                                                                                                   
-| **Flujo principal**     | El usuario selecciona en la app el modo de iluminación deseado (manual o fotoperíodo). La app envía los parámetros de color e intensidad al microcontrolador. El firmware actualiza las señales PWM. La iluminación cambia inmediatamente y el sistema confirma la actualización a la app. |
-| **Flujos alternativos** | a. Se pierde la conexión BLE: el sistema mantiene la configuración previa y notifica error. <br> b. La app envía valores fuera de rango: el firmware descarta el comando y envía error a la app.                           |
+## 5\. Casos de Uso
 
+### 5.1\. Caso de Uso 01: Ejecución de Partida de Juego (Modo `NORMAL`)
 
-<p align="center"><em>Tabla 3.2: Caso de uso 2: Control de iluminación</em></p>
+* **Actor Principal:** Usuario / Jugador.
+* **Precondición:** El sistema se encuentra encendido en modo `NORMAL` y la partida ha iniciado.
+* **Flujo Principal:**  
+  1. El usuario desplaza el Joystick en una dirección (Arriba, Abajo, Izquierda, Derecha).
+  2. La tarea `task_sensor` convierte la señal analógica del ADC, filtra el ruido y genera el evento de dirección correspondiente.
+  3. La tarea `task_system` actualiza la posición de la cabeza del gusanito en la cuadrícula 8x8.
+  4. Si la cabeza coincide con la coordenada de la fruta, el gusanito incrementa su longitud, aumenta el puntaje en +1, genera una nueva fruta en coordenadas aleatorias no ocupadas y emite un evento de sonido.
+  5. La tarea `task_actuator` refresca la Matriz de LEDs vía SPI, actualiza el valor del puntaje en la pantalla LCD vía I2C y dispara un tono PWM en el buzzer.
+* **Flujo Alternativo (Pausa):**  
+  * Si el usuario presiona el botón de pausa o envía el comando vía Bluetooth, el juego congela el estado del gusanito y coloca el MCU en modo de bajo consumo relativo hasta recibir la reactivación.
 
+### 5.2\. Caso de Uso 02: Configuración del Sistema y Gestión de Récord (Modo `SET_UP`)
 
-| Elemento | Definición |
-| :---- | :---- |                                                                                                                                                                                                                                    
-| **Disparador**          | La temperatura ambiente medida por el DHT22 supera el umbral configurado o el usuario activa el ventilador desde la app. |                                                                                                                                                                                                                                        
-| **Precondiciones**      | El sistema está encendido. El ventilador está conectado mediante MOSFET y PWM. El sensor DHT22 está operativo. Los umbrales están configurados y guardados en Flash. La app está enlazada por BLE si se utiliza el modo manual. |                                                                                                                                  
-| **Flujo principal**     | El sistema realiza una lectura de temperatura. Si supera el umbral definido, el firmware activa el ventilador y ajusta su velocidad mediante PWM según la temperatura. Si el usuario usa el modo manual, puede activar/desactivar el ventilador o ajustar la velocidad desde la app. El sistema envía a la app el estado del ventilador y las lecturas actuales. |
-| **Flujos alternativos** | a. La temperatura vuelve a valores normales: el ventilador se apaga. <br> b. El ventilador falla o no gira (si se mide tac/RPM): el sistema notifica falla a la app.                                     |
+* **Actor Principal:** Usuario.
+* **Precondición:** El usuario conmuta el *dip switch* asignado al modo `SET_UP`.
+* **Flujo Principal:**  
+  1. El sistema pausa el juego y despliega en la pantalla LCD el menú principal de configuración.
+  2. El usuario navega por las opciones utilizando el Joystick o los botones auxiliares:  
+    * *Opción 1:* Ajuste de velocidad inicial (Nivel 1 al 5).
+    * *Opción 2:* Habilitar / Deshabilitar efectos de sonido.
+    * *Opción 3:* Reiniciar récord histórico de puntuación.
+  3. Al seleccionar y confirmar un parámetro, la tarea `task_system` envía los datos formateados a la tarea `task_actuator`.
+  4. Se ejecutan las operaciones de escritura serie I2C para almacenar la nueva configuración en la memoria EEPROM no volátil.
+  5. El LCD muestra el mensaje de confirmación "Configuracion Guardada".
 
+### 5.3\. Caso de Uso 03: Colisión, Game Over y Notificación Bluetooth
 
-<p align="center"><em>Tabla 3.3: Caso de uso 3: Control del ventilador según temperatura</em></p>
-
+* **Actor Principal:** Sistema / Usuario.
+* **Precondición:** El gusanito en movimiento colisiona contra los bordes de la matriz 8x8 o contra su propio cuerpo.
+* **Flujo Principal:**  
+  1. La máquina de estados en `task_system` detecta la superposición de coordenadas o fuera de límite.
+  2. Transiciona inmediatamente al estado `GAME_OVER`.
+  3. Desconecta el procesamiento del Joystick y evalúa si la puntuación obtenida supera la marca almacenada en la EEPROM.
+  4. Si el puntaje es un nuevo récord, escribe la nueva puntuación en la EEPROM y envía una trama con el mensaje `"NUEVO RECORD: XX"` vía UART al módulo Bluetooth HM-10.
+  5. La tarea `task_actuator` apaga el LED verde de ejecución, enciende el LED rojo de falla/game over, ejecuta una secuencia de tonos sonoros de derrota en el buzzer y hace parpadear el mensaje "GAME OVER" en la pantalla LCD.
