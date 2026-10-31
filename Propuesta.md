@@ -13,7 +13,7 @@
 
 **Fecha: 2do cuatrimestre 2026**
 
-**Fecha de entrega estimada: 18/12/2026**
+**Fecha de entrega estimada: 30/10/2026**
 
  
 
