@@ -9,7 +9,7 @@
 
 **Autores: DELGADO Alex; PAREDES Fabian; LAIME Kevin**
 
-**Padrón: 112250; xxx-xxx; xxx-xxx**
+**Padrón: 112250; xxx-xxx; 111621**
 
 **Fecha: 2do cuatrimestre 2026**
 
