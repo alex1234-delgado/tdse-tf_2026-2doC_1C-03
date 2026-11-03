@@ -3,7 +3,7 @@
  <img src="https://www.fi.uba.ar/images/logo-fiuba.png" alt="image2" width="50%">
 
 
-# **Control de uso de un sistema externo de forma externa**
+# **El juego de la viborita SNAKE**
 
  
 
