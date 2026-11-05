@@ -252,11 +252,9 @@ El diagrama en bloques deberá representar al STM32 como unidad central
 de procesamiento y mostrar las conexiones con los periféricos: joystick
 mediante ADC; matriz LED mediante SPI; LCD y EEPROM mediante I2C, si se
 utilizan; Bluetooth mediante UART; buzzer mediante PWM; y pulsadores,
-dip switches y LEDs mediante GPIO.
+dip switches y LEDs mediante GPIO. Figura 1.3.1:
 
-![Diagrama en bloques general del sistema Snake](Arquitectura_del_sistema_Snake_con_STM32.png)
-
-*Figura 1.3.1: Diagrama en bloques general del sistema Snake.*
+![Diagrama en bloques general del sistema Snake](sistema.png)
 
 ------------------------------------------------------------------------
 
