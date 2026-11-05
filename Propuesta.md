@@ -115,7 +115,7 @@ y el interés académico permiten valorar el aprovechamiento de los
 periféricos del microcontrolador. El costo se considera importante,
 aunque no es el único factor de decisión.
 
-La siguiente tabla presenta una evaluación preliminar. Los puntajes van
+La tabla 1.2.1 presenta una evaluación preliminar. Los puntajes van
 de 1 a 10 y el puntaje ponderado se calcula multiplicando el puntaje
 asignado por el peso del criterio.
 
@@ -131,7 +131,7 @@ asignado por el peso del criterio.
 
 *Tabla 1.2.1: Comparación ponderada de las alternativas.*
 
-Los valores de la tabla son estimaciones iniciales del equipo y podrán
+Los valores de la tabla 1.2.1 son estimaciones iniciales del equipo y podrán
 revisarse en función de la disponibilidad real de los componentes y del
 avance de la implementación.
 
@@ -252,7 +252,9 @@ El diagrama en bloques deberá representar al STM32 como unidad central
 de procesamiento y mostrar las conexiones con los periféricos: joystick
 mediante ADC; matriz LED mediante SPI; LCD y EEPROM mediante I2C, si se
 utilizan; Bluetooth mediante UART; buzzer mediante PWM; y pulsadores,
-dip switches y LEDs mediante GPIO.
+dip switches y LEDs mediante GPIO. Figura 1.3.1:
+
+![Figura 1.3.1: Diagrama en bloques general del sistema Snake.](diagrama_bloques_snake.png)
 
 *Figura 1.3.1: Diagrama en bloques general del sistema Snake.*
 
@@ -286,7 +288,7 @@ integrado de ADC, GPIO, SPI, I2C, UART, PWM e interrupciones.
 Los requisitos se organizan por grupos funcionales. Se consideran
 requisitos funcionales (RF), que describen los servicios que debe
 ofrecer el sistema, y requisitos no funcionales (RNF), que establecen
-restricciones de implementación, desempeño y robustez.
+restricciones de implementación, desempeño y robustez. Tales requisitos se muestran en la tabla 2.1:
 
 | Grupo | ID | Tipo | Descripción |
 | :--- | :---: | :--- | :--- |
@@ -381,7 +383,7 @@ El desarrollo se realizará de manera incremental, priorizando la
 integración y validación de los módulos principales antes de incorporar
 las funcionalidades de ampliación.
 
-Una posible división del firmware es la siguiente:
+Una posible división del firmware se muestra en la tabla 3.1:
 
 | Módulo | Responsabilidad principal |
 | :--- | :--- |
