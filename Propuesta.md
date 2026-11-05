@@ -252,9 +252,11 @@ El diagrama en bloques deberá representar al STM32 como unidad central
 de procesamiento y mostrar las conexiones con los periféricos: joystick
 mediante ADC; matriz LED mediante SPI; LCD y EEPROM mediante I2C, si se
 utilizan; Bluetooth mediante UART; buzzer mediante PWM; y pulsadores,
-dip switches y LEDs mediante GPIO. Figura 1.3.1:
+dip switches y LEDs mediante GPIO. Tales bloques se representan en la Figura 1.3.1.
 
 ![Diagrama en bloques general del sistema Snake](sistema.png)
+
+*Figura 1.3.1: Diagrama en bloques general del sistema Snake.*
 
 ------------------------------------------------------------------------
 
@@ -286,7 +288,7 @@ integrado de ADC, GPIO, SPI, I2C, UART, PWM e interrupciones.
 Los requisitos se organizan por grupos funcionales. Se consideran
 requisitos funcionales (RF), que describen los servicios que debe
 ofrecer el sistema, y requisitos no funcionales (RNF), que establecen
-restricciones de implementación, desempeño y robustez. Tales requisitos se muestran en la tabla 2.1:
+restricciones de implementación, desempeño y robustez. Tales requisitos se muestran en la tabla 2.1.
 
 | Grupo | ID | Tipo | Descripción |
 | :--- | :---: | :--- | :--- |
@@ -381,7 +383,7 @@ El desarrollo se realizará de manera incremental, priorizando la
 integración y validación de los módulos principales antes de incorporar
 las funcionalidades de ampliación.
 
-Una posible división del firmware se muestra en la tabla 3.1:
+Una posible división del firmware se muestra en la tabla 3.1.
 
 | Módulo | Responsabilidad principal |
 | :--- | :--- |
@@ -391,6 +393,8 @@ Una posible división del firmware se muestra en la tabla 3.1:
 | `task_storage` | Leer y escribir configuraciones y récords en EEPROM o Flash, si se implementa. |
 | `task_communication` | Gestionar el protocolo de intercambio de datos con el módulo Bluetooth, si se implementa. |
 | `scheduler` | Mantener la base de tiempo y ejecutar las tareas periódicas sin bloqueos. |
+
+*Tabla 3.1: Posible división del firmware del proyecto.*
 
 La interrupción de `SysTick` se utilizará para mantener una referencia
 temporal del sistema. Las rutinas de interrupción deberán ser breves:
