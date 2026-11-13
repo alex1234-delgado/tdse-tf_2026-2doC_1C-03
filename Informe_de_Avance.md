@@ -22,7 +22,7 @@ Se detallan los requisitos establecidos en la especificación inicial, indicando
 |:---:|---|
 | 🟢 | Implementado y probado. |
 | 🟡 | En proceso de implementación. |
-| 🔴 | No implementado o descartado para la versión final. |
+| 🔴 | No implementado |
 
 ## 1. Lógica del juego
 
