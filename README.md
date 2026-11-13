@@ -13,5 +13,5 @@
 | :--: | :--------------------- | :------: | :-------: |
 | 01   | README.md              | 19/10/26 | Semana 08 |
 | 02   | Propuesta.md           | 30/10/26 | Semana 11 |
-| 03   | Informe_de_Avance.md   |          | Semana 14 |
+| 03   | Informe_de_Avance.md   | 13/11/26 | Semana 14 |
 | 04   | Memoria_Video_Código.md |         | Semana 17 |
